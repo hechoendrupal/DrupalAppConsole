@@ -49,8 +49,8 @@ services:
     arguments: ['@config.storage', '@config.manager']
     tags:
       - { name: drupal.command }
-  console.config_override:
-    class: Drupal\Console\Command\Config\OverrideCommand
+  console.config_set:
+    class: Drupal\Console\Command\Config\SetCommand
     arguments: ['@config.storage', '@config.factory']
     tags:
       - { name: drupal.command }

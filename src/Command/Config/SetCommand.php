@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\Console\Command\Config\OverrideCommand.
+ * Contains \Drupal\Console\Command\Config\SetCommand.
  */
 
 namespace Drupal\Console\Command\Config;
@@ -15,7 +15,7 @@ use Drupal\Console\Core\Command\Command;
 use Drupal\Core\Config\CachedStorage;
 use Drupal\Core\Config\ConfigFactory;
 
-class OverrideCommand extends Command
+class SetCommand extends Command
 {
     /**
      * @var CachedStorage
@@ -28,7 +28,7 @@ class OverrideCommand extends Command
     protected $configFactory;
 
     /**
-     * OverrideCommand constructor.
+     * SetCommand constructor.
      *
      * @param CachedStorage $configStorage
      * @param ConfigFactory $configFactory
@@ -45,24 +45,24 @@ class OverrideCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('config:override')
-            ->setDescription($this->trans('commands.config.override.description'))
+            ->setName('config:set')
+            ->setDescription($this->trans('commands.config.set.description'))
             ->addArgument(
                 'name',
                 InputArgument::REQUIRED,
-                $this->trans('commands.config.override.arguments.name')
+                $this->trans('commands.config.set.arguments.name')
             )
             ->addOption(
                 'key',
                 null,
                 InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
-                $this->trans('commands.config.override.options.key')
+                $this->trans('commands.config.set.options.key')
             )
             ->addOption(
                 'value',
                 null,
                 InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
-                $this->trans('commands.config.override.options.value')
+                $this->trans('commands.config.set.options.value')
             )
             ->setAliases(['co']);
     }
@@ -78,7 +78,7 @@ class OverrideCommand extends Command
             if (!in_array($name, $names)) {
                 $this->getIo()->warning(
                     sprintf(
-                        $this->trans('commands.config.override.messages.invalid-name'),
+                        $this->trans('commands.config.set.messages.invalid-name'),
                         $name
                     )
                 );
@@ -87,7 +87,7 @@ class OverrideCommand extends Command
         }
         if (!$name) {
             $name = $this->getIo()->choiceNoList(
-                $this->trans('commands.config.override.questions.name'),
+                $this->trans('commands.config.set.questions.name'),
                 $names
             );
             $input->setArgument('name', $name);
@@ -96,7 +96,7 @@ class OverrideCommand extends Command
         if (!$key) {
             if (!$this->configStorage->exists($name)) {
                 $this->getIo()->newLine();
-                $this->getIo()->errorLite($this->trans('commands.config.override.messages.invalid-config-file'));
+                $this->getIo()->errorLite($this->trans('commands.config.set.messages.invalid-config-file'));
                 $this->getIo()->newLine();
                 return 0;
             }
@@ -134,7 +134,7 @@ class OverrideCommand extends Command
 
         $configurationOverrideResult = [];
         foreach ($keys as $index => $key) {
-          $result = $this->overrideConfiguration(
+          $result = $this->setConfiguration(
               $config,
               $key,
               $values[$index]
@@ -144,20 +144,20 @@ class OverrideCommand extends Command
 
         $config->save();
 
-        $this->getIo()->info($this->trans('commands.config.override.messages.configuration'), false);
+        $this->getIo()->info($this->trans('commands.config.set.messages.configuration'), false);
         $this->getIo()->comment($configName);
 
         $tableHeader = [
-            $this->trans('commands.config.override.messages.configuration-key'),
-            $this->trans('commands.config.override.messages.original'),
-            $this->trans('commands.config.override.messages.updated'),
+            $this->trans('commands.config.set.messages.configuration-key'),
+            $this->trans('commands.config.set.messages.original'),
+            $this->trans('commands.config.set.messages.updated'),
         ];
         $tableRows = $configurationOverrideResult;
         $this->getIo()->table($tableHeader, $tableRows);
     }
 
 
-    protected function overrideConfiguration($config, $key, $value)
+    protected function setConfiguration($config, $key, $value)
     {
         $result[] = [
             'configuration' => $key,
@@ -180,7 +180,7 @@ class OverrideCommand extends Command
     private function getKeysFromConfig($configuration, $key = null)
     {
         $choiceKey = $this->getIo()->choiceNoList(
-            $this->trans('commands.config.override.questions.key'),
+            $this->trans('commands.config.set.questions.key'),
             array_keys($configuration)
         );
 
