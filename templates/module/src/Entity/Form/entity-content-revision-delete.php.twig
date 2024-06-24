@@ -97,7 +97,7 @@ class {{ entity_class }}RevisionDeleteForm extends ConfirmFormBase {% endblock %
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, ${{ entity_name }}_revision = NULL) {
-    $this->revision = $this->{{ entity_class }}Storage->loadRevision(${{ entity_name }}_revision);
+    $this->revision = $this->{{ entity_class[:1]|lower ~ entity_class[1:] }}Storage->loadRevision(${{ entity_name }}_revision);
     $form = parent::buildForm($form, $form_state);
 
     return $form;
@@ -107,7 +107,7 @@ class {{ entity_class }}RevisionDeleteForm extends ConfirmFormBase {% endblock %
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $this->{{ entity_class }}Storage->deleteRevision($this->revision->getRevisionId());
+    $this->{{ entity_class[:1]|lower ~ entity_class[1:] }}Storage->deleteRevision($this->revision->getRevisionId());
 
     $this->logger('content')->notice('{{ label }}: deleted %title revision %revision.', ['%title' => $this->revision->label(), '%revision' => $this->revision->getRevisionId()]);
     $this->messenger()->addMessage(t('Revision from %revision-date of {{ label }} %title has been deleted.', ['%revision-date' => $this->dateFormatter->format($this->revision->getRevisionCreationTime()), '%title' => $this->revision->label()]));
@@ -115,7 +115,7 @@ class {{ entity_class }}RevisionDeleteForm extends ConfirmFormBase {% endblock %
       'entity.{{ entity_name }}.canonical',
        ['{{ entity_name }}' => $this->revision->id()]
     );
-    if ($this->connection->query('SELECT COUNT(DISTINCT vid) FROM {{ '{'~entity_name~'_field_revision}' }} WHERE id = :id', [':id' => $this->revision->id()])->fetchField() > 1) {
+    if ($this->connection->query('SELECT COUNT(DISTINCT vid) FROM {{ '{'~entity_name }}{% if is_translatable %}_field{% endif %}{{ '_revision}' }} WHERE id = :id', [':id' => $this->revision->id()])->fetchField() > 1) {
       $form_state->setRedirect(
         'entity.{{ entity_name }}.version_history',
          ['{{ entity_name }}' => $this->revision->id()]
