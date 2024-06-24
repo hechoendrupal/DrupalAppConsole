@@ -6,6 +6,7 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
 use Drupal\Core\DependencyInjection\ServiceModifierInterface;
 use Drupal\Console\Core\Utils\DrupalFinder;
+use Drupal\Core\Extension\ExtensionDiscovery;
 
 /**
  * Trait DrupalKernelTrait
@@ -167,13 +168,31 @@ trait DrupalKernelTrait
 
     protected function addDrupalConsoleThemeServices($root)
     {
-        $themes = $this->getThemeFileNames();
+        $themes = $this->getThemeFileNames($root);
+        $servicesFiles  = [];
+        foreach ($themes as $theme => $filename ) {
+            $servicesFile = $root . '/' .
+                dirname($filename) .
+                "/console.services.yml";
+            if (file_exists($servicesFile)) {
+                $servicesFiles[] = $servicesFile;
+            }
+        }
+
+        $this->addDrupalServiceFiles($servicesFiles);
     }
 
-    private function getThemeFileNames()
+    private function getThemeFileNames($root)
     {
-        $extensions = $this->getConfigStorage()->read('core.extension');
+        $listing = new ExtensionDiscovery($root);
+        $listing->setProfileDirectories(array());
 
-        return isset($extensions['theme']) ? $extensions['theme'] : [];
+        $themes = [];
+        foreach ($listing->scan('theme') as $theme => $value ) {
+            $themes[$theme] = $value->getPathname();
+        }
+
+        return $themes;
     }
+
 }
