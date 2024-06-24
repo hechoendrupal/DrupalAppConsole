@@ -2,46 +2,27 @@
 
 /**
  * @file
- * Contains Drupal\Console\Command\Generate\ControllerCommand.
+ * Contains Drupal\Console\Command\Generate\AjaxCommand.
  */
 
 namespace Drupal\Console\Command\Generate;
 
+use Drupal\Console\Command\ModuleAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Drupal\Console\Command\Shared\ConfirmationTrait;
-use Drupal\Console\Command\Shared\ModuleTrait;
+use Drupal\Console\Command\Shared\ServicesTrait;
 use Drupal\Console\Generator\AjaxCommandGenerator;
-use Drupal\Console\Core\Command\Command;
 use Drupal\Console\Core\Utils\ChainQueue;
-use Drupal\Console\Extension\Manager;
-use Drupal\Console\Utils\Validator;
 
 /**
  * Class AjaxCommand
  *
  * @package Drupal\Console\Command\Generate
  */
-class AjaxCommand extends Command
+class AjaxCommand extends ModuleAwareCommand
 {
-    use ModuleTrait;
-    use ConfirmationTrait;
-
-    /**
-     * @var Manager
-     */
-    protected $extensionManager;
-
-    /**
-     * @var AjaxCommandGenerator
-     */
-    protected $generator;
-
-    /**
-     * @var Validator
-     */
-    protected $validator;
+    use ServicesTrait;
 
     /**
      * @var ChainQueue
@@ -51,22 +32,15 @@ class AjaxCommand extends Command
     /**
      * AjaxCommand constructor.
      *
-     * @param Manager              $extensionManager
      * @param AjaxCommandGenerator $generator
-     * @param Validator            $validator
      * @param ChainQueue           $chainQueue
      */
     public function __construct(
-        Manager $extensionManager,
         AjaxCommandGenerator $generator,
-        Validator $validator,
         ChainQueue $chainQueue
     ) {
-        $this->extensionManager = $extensionManager;
-        $this->generator = $generator;
-        $this->validator = $validator;
         $this->chainQueue = $chainQueue;
-        parent::__construct();
+        parent::__construct($generator);
     }
 
     /**
@@ -116,7 +90,7 @@ class AjaxCommand extends Command
         }
 
         $module = $this->validateModule($input->getOption('module'));
-        $class = $this->validator->validateClassName($input->getOption('class'));
+        $class = $this->validator()->validateClassName($input->getOption('class'));
         $method = $input->getOption('method');
         $js_name = $input->getOption('js-name');
 
@@ -150,7 +124,7 @@ class AjaxCommand extends Command
                 $this->trans('commands.generate.ajax.command.questions.class'),
                 'AjaxCommand',
                 function ($class) {
-                    return $this->validator->validateClassName($class);
+                    return $this->validator()->validateClassName($class);
                 }
             );
             $input->setOption('class', $class);

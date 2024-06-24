@@ -11,7 +11,7 @@ services:
        - { name: drupal.command }
   console.generate_authentication_provider:
     class: Drupal\Console\Command\Generate\AuthenticationProviderCommand
-    arguments: ['@console.extension_manager', '@console.authentication_provider_generator', '@console.string_converter', '@console.validator']
+    arguments: ['@console.authentication_provider_generator']
     tags:
        - { name: drupal.command }
   console.generate_controller:
@@ -21,7 +21,7 @@ services:
        - { name: drupal.command }
   console.generate_ajax:
     class: Drupal\Console\Command\Generate\AjaxCommand
-    arguments: ['@console.extension_manager', '@console.ajax_command_generator', '@console.validator', '@console.chain_queue']
+    arguments: ['@console.ajax_command_generator', '@console.chain_queue']
     tags:
        - { name: drupal.command }
   console.generate_breakpoint:

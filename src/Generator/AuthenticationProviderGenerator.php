@@ -22,9 +22,8 @@ class AuthenticationProviderGenerator extends Generator
      *
      * @param Manager $extensionManager
      */
-    public function __construct(
-        Manager $extensionManager
-    ) {
+    public function __construct(Manager $extensionManager)
+    {
         $this->extensionManager = $extensionManager;
     }
 
@@ -37,24 +36,26 @@ class AuthenticationProviderGenerator extends Generator
         $class = $parameters['class'];
         $provider_id = $parameters['provider_id'];
         $moduleInstance = $this->extensionManager->getModule($module);
-        $modulePath = $moduleInstance->getPath() . '/' . $module;
+        $modulePath = "{$moduleInstance->getPath()}/{$module}";
 
         $this->renderFile(
-            'module/src/Authentication/Provider/authentication-provider.php.twig',
-            $moduleInstance->getAuthenticationPath('Provider') . '/' . $class . '.php',
-            $parameters
+          'module/src/Authentication/Provider/authentication-provider.php.twig',
+          "{$moduleInstance->getAuthenticationPath('Provider')}/{$class}.php",
+          $parameters
         );
+
+        $moduleServicePath =  "$modulePath.services.yml";
 
         $parameters = array_merge($parameters, [
           'module' => $module,
           'class' => $class,
           'class_path' => sprintf('Drupal\%s\Authentication\Provider\%s', $module, $class),
-          'name' => 'authentication.' . $module,
+          'name' => "authentication.$module",
           'services' => [
             ['name' => 'config.factory'],
             ['name' => 'entity_type.manager'],
           ],
-          'file_exists' => file_exists($modulePath . '.services.yml'),
+          'file_exists' => file_exists($moduleServicePath),
           'tags' => [
             'name' => 'authentication_provider',
             'provider_id' => $provider_id,
@@ -64,7 +65,7 @@ class AuthenticationProviderGenerator extends Generator
 
         $this->renderFile(
             'module/services.yml.twig',
-            $modulePath . '.services.yml',
+             $moduleServicePath,
              $parameters,
             FILE_APPEND
         );
