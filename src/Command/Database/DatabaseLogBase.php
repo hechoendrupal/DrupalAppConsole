@@ -182,7 +182,7 @@ abstract class DatabaseLogBase extends Command
 
         $query->orderBy('wid', 'ASC');
 
-        if ($offset) {
+        if ($offset !== null) {
             $query->range($offset, $range);
         }
 

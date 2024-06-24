@@ -149,7 +149,15 @@ class DatabaseLogCommand extends DatabaseLogBase
    */
     private function getAllEvents()
     {
-        $query = $this->makeQuery();
+        if (!$this->offset) {
+            $this->offset = 0;
+        }
+
+        if (!$this->limit) {
+            $this->limit = 1000;
+        }
+
+        $query = $this->makeQuery($this->offset, $this->limit);
 
         $result = $query->execute();
 
