@@ -33,7 +33,7 @@ foreach ($autoloaders as $file) {
 }
 
 if (isset($autoloader)) {
-    $autoload = include_once $autoloader;
+    $autoload = include $autoloader;
 } else {
     echo ' You must set up the project dependencies using `composer install`' . PHP_EOL;
     exit(1);
