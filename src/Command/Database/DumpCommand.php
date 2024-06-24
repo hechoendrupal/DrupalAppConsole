@@ -204,43 +204,36 @@ class DumpCommand extends Command
             $this->getIo()->commentBlock($command);
         }
 
-        try {
-            $process = new Process($command);
-            $process->setTimeout(null);
-            $process->setWorkingDirectory($this->appRoot);
-            $process->run();
 
-            if($process->isSuccessful()) {
-                $resultFile = $file;
-                if ($gz) {
-                    if (substr($file, -3) != '.gz') {
-                        $resultFile = $file . '.gz';
-                    }
-                    file_put_contents(
-                        $resultFile,
-                        gzencode(
-                            file_get_contents(
-                                $file
-                            )
-                        )
-                    );
-                    if ($resultFile != $file) {
-                        unlink($file);
-                    }
-                }
+        $process = new Process($command);
+        $process->setTimeout(null);
+        $process->setWorkingDirectory($this->appRoot);
+        $process->mustRun();
 
-                $this->getIo()->success(
-                    sprintf(
-                        '%s %s',
-                        $this->trans('commands.database.dump.messages.success'),
-                        $resultFile
-                    )
-                );
+        $resultFile = $file;
+        if ($gz) {
+            if (substr($file, -3) != '.gz') {
+                $resultFile = $file . '.gz';
             }
-
-            return 0;
-        } catch (\Exception $e) {
-            return 1;
+            file_put_contents(
+                $resultFile,
+                gzencode(
+                    file_get_contents(
+                        $file
+                    )
+                )
+            );
+            if ($resultFile != $file) {
+                unlink($file);
+            }
         }
+
+        $this->getIo()->success(
+            sprintf(
+                '%s %s',
+                $this->trans('commands.database.dump.messages.success'),
+                $resultFile
+            )
+        );
     }
 }
